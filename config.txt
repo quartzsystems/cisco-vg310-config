@@ -1,0 +1,83 @@
+conf t
+
+!
+! Global VoIP/SIP settings
+!
+voice service voip
+ allow-connections sip to sip
+ fax protocol t38 version 0 ls-redundancy 0 hs-redundancy 0 fallback pass-through g711ulaw
+ modem passthrough nse codec g711ulaw
+ sip
+  registrar server expires max 3600 min 3600
+  bind control source-interface GigabitEthernet0/0
+  bind media source-interface GigabitEthernet0/0
+!
+
+!
+! SIP server / FusionPBX
+!
+sip-ua
+ registrar ipv4:PBX_IP expires 3600
+ sip-server ipv4:PBX_IP
+ authentication username 3000 password PASSWORD3000 realm DOMAIN
+ authentication username 3001 password PASSWORD3001 realm DOMAIN
+ credentials username 3000 password PASSWORD3000 realm DOMAIN
+ credentials username 3001 password PASSWORD3001 realm DOMAIN
+ register ipv4:PBX_IP:5060 username 3000 password PASSWORD3000
+ register ipv4:PBX_IP:5060 username 3001 password PASSWORD3001
+!
+
+!
+! Fax Line 1 - FXS 0/0/0 - Extension 3000
+!
+voice-port 0/0/0
+ description FAX_LINE_1_EXT_3000
+ cptone US
+ no echo-cancel enable
+ no vad
+ no comfort-noise
+ no shutdown
+!
+
+dial-peer voice 3000 pots
+ description INBOUND_TO_FAX_LINE_1
+ destination-pattern 3000
+ port 0/0/0
+ forward-digits all
+!
+
+!
+! Fax Line 2 - FXS 0/0/1 - Extension 3001
+!
+voice-port 0/0/1
+ description FAX_LINE_2_EXT_3001
+ cptone US
+ no echo-cancel enable
+ no vad
+ no comfort-noise
+ no shutdown
+!
+
+dial-peer voice 3001 pots
+ description INBOUND_TO_FAX_LINE_2
+ destination-pattern 3001
+ port 0/0/1
+ forward-digits all
+!
+
+!
+! Outbound calls from fax machines to FusionPBX
+!
+dial-peer voice 9000 voip
+ description OUTBOUND_TO_FUSIONPBX
+ destination-pattern .T
+ session protocol sipv2
+ session target ipv4:PBX_IP
+ codec g711ulaw
+ fax protocol t38
+ no vad
+ dtmf-relay rtp-nte
+!
+
+end
+write memory
