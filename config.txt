@@ -1,10 +1,11 @@
+QS-HQ-VG1#show run
 Building configuration...
 
 
-Current configuration : 2937 bytes
+Current configuration : 3018 bytes
 !
-! Last configuration change at 22:36:03 UTC Wed May 13 2026
-! NVRAM config last updated at 22:36:08 UTC Wed May 13 2026
+! Last configuration change at 23:03:00 UTC Wed May 13 2026
+! NVRAM config last updated at 23:03:02 UTC Wed May 13 2026
 !
 version 15.7
 service config
@@ -19,6 +20,7 @@ boot-start-marker
 boot-end-marker
 !
 !
+no logging console
 !
 no aaa new-model
 !
@@ -111,16 +113,16 @@ control-plane
 !
 !
 voice-port 0/0/0
- connection plar 1000
  description Fax Line 1
  station-id name Fax Line 1
  station-id number 9067230276
+ caller-id enable
 !
 voice-port 0/0/1
- connection plar 1001
  description Fax Line 2
  station-id name Fax Line 2
  station-id number 9067230438
+ caller-id enable
 !
 voice-port 0/0/2
 !
@@ -179,16 +181,18 @@ mgcp profile default
 dial-peer voice 1000 pots
  description Fax Line 1 - port 0/0/0
  destination-pattern 1000
+ incoming called-number 1000
  port 0/0/0
 !
 dial-peer voice 1001 pots
  description Fax Line 2 - port 0/0/1
  destination-pattern 1001
+ incoming called-number 1001
  port 0/0/1
 !
 dial-peer voice 9000 voip
  description To IssabelPBX
- destination-pattern .T
+ destination-pattern [2-9].........
  session protocol sipv2
  session target ipv4:172.16.50.4
  voice-class codec 1
